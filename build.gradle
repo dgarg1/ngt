@@ -31,6 +31,7 @@ dependencies {
     compile("org.springframework.social:spring-social-facebook")
 	compile('org.springframework.boot:spring-boot-starter-social-twitter')
 	compile('org.springframework.boot:spring-boot-starter-web')
+	compile group: 'joda-time', name: 'joda-time', version: '2.3'
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 }
 
