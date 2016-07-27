@@ -1,6 +1,8 @@
 package com.hackathon.ngt;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -8,10 +10,8 @@ import org.springframework.social.connect.ConnectionRepository;
 import org.springframework.social.facebook.api.Facebook;
 import org.springframework.social.facebook.api.PagedList;
 import org.springframework.social.facebook.api.Post;
-import org.springframework.social.twitter.api.CursoredList;
-import org.springframework.social.twitter.api.SearchResults;
+import org.springframework.social.twitter.api.StreamListener;
 import org.springframework.social.twitter.api.Twitter;
-import org.springframework.social.twitter.api.TwitterProfile;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,12 +24,14 @@ public class HelloController {
 	private Facebook facebook;
 	private Twitter twitter;
 	private ConnectionRepository connectionRepository;
+	private StreamService streamService;
 
     @Inject
-    public HelloController(Facebook facebook, Twitter twitter, ConnectionRepository connectionRepository) {
+    public HelloController(Facebook facebook, Twitter twitter, ConnectionRepository connectionRepository, StreamService streamService) {
         this.facebook = facebook;
         this.twitter = twitter;
 		this.connectionRepository = connectionRepository;
+		this.streamService = streamService;
     }
 
     @RequestMapping(value="/test", method=RequestMethod.GET)
@@ -60,18 +62,42 @@ public class HelloController {
             return "redirect:/connect/twitter";
         }
 
+        List<StreamListener> listeners = new ArrayList<StreamListener>();
         model.addAttribute(twitter.userOperations().getUserProfile());
-        CursoredList<TwitterProfile> friends = twitter.friendOperations().getFriends();
-        model.addAttribute("friends", friends);
-        SearchResults results = twitter.searchOperations().search("#cognizant");
-        System.out.println(results.toString());
         try {
-        	boolean test = WriteFile.writeToFile(results);
-        	System.out.println(test);
-		} catch (IOException e) {
+        	//for (int i = 0; i < 1000; i++) {
+        		//System.out.println("moti" + i);
+    			//Model returnedmodel = streamService.streamApi(model, 1);
+				
+			//}
+			Model returnedmodel = streamService.streamApi(model, 1);
+			System.out.println(returnedmodel);
+			//returnedmodel.asMap().forEach((k,v) -> System.out.println((k + "  " + v)));
+			
+			try {
+				WriteFile.writeToFile(returnedmodel);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+//        CursoredList<TwitterProfile> friends = twitter.friendOperations().getFriends();
+//        model.addAttribute("friends", friends);
+//        SearchResults results = twitter.searchOperations().search("#cognizant");
+//        System.out.println(results.toString());
+//        System.out.println("gettttttt the things" + twitter.streamingOperations().filter("#cognizant", listeners));
+//        try {
+//        	boolean test = WriteFile.writeToFile(results);
+//        	System.out.println(test);
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+        System.out.println("");
         return "hellotwitter";
     }
 }
